@@ -23,7 +23,7 @@ REGEX_CUIT = r'(20|23|27|30|33)-([0-9]{8}|[0-9]{9})-[0-9]{1}$'
 fecha_obtenida = False
 proximo_es_monto = False
 
-img = cv2.imread('OCR-Facturas/imagenes/Imagen_0.jpg')
+img = cv2.imread('OCR-Facturas/imagenes/Imagen_3.jpg')
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 print("Aplicando OCR")
