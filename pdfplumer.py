@@ -28,7 +28,7 @@ REGEX_TOTAL = re.compile(r'(TOTAL)(.*)')
 REGEX_NOMBRE = r'([A-Z] )'
 
 
-with pdfplumber.open('OCR-Facturas/recursos/m.obra.pdf') as pdf:
+with pdfplumber.open('OCR-Facturas/recursos/Alarma.pdf') as pdf:
     page = pdf.pages[0]
     text = page.extract_text()
 

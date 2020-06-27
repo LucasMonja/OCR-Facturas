@@ -1,46 +1,60 @@
+import numpy as np
 import argparse
 import imutils
 import cv2
 
-image = cv2.imread('OCR-Facturas/imagenes/Imagen_0.jpg')
+image = cv2.imread('OCR-Facturas/imagenes/Imagen_3.jpg')
 image = imutils.resize(image, height= 1000)
 
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
 thresh = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY_INV)[1]
+result = image.copy()
 
-# LOS CONTORNOS LOS ENCUENTRA DE ARRIBA HACIA ABAJO (DE LA IMAGEN)
-cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-cnts = imutils.grab_contours(cnts)
-output = image.copy()
+horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (40,1))
+detect_horizontal = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
+cnts = cv2.findContours(detect_horizontal, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+cnts = cnts[0] if len(cnts) == 2 else cnts[1]
 
-print(len(cnts))
-for c in cnts:
-	ejemplo = image.copy()
-	peri = cv2.arcLength(c, True)
-	approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+puntos = []
+niveles = set([])
+secciones = []
+def obtener_puntos():
+	for c in cnts:
+		inicio = c[0][0]
+		fin = c[-1][0]
+		niveles.add(inicio[1])
+		puntos.append((inicio[0],inicio[1]))
+		puntos.append((fin[0], fin[1]))
 
-	if (len(approx) == 4) and (peri > 500):
-		'''for p in approx:
-			cv2.circle(ejemplo, p,1,(0,0,255), -1)'''
-		cv2.drawContours(output, [c], -1, (0, 255, 0), 2)
-		cv2.drawContours(ejemplo, [c], -1, (0, 255, 0), 2)
-		cv2.imshow("Ej", ejemplo)
-		cv2.waitKey(0)
-'''		
-# we apply erosions to reduce the size of foreground objects
-mask = thresh.copy()
-mask = cv2.erode(mask, None, iterations=5)
 
-# similarly, dilations can increase the size of the ground objects
-mask = thresh.copy()
-mask = cv2.dilate(mask, None, iterations=5)
+def obtener_lineas(puntos, niveles):
+	lineas = []
+	for nivel in niveles:
+		posibles = []
+		for punto in puntos:
+			if punto[1] == nivel:
+				posibles.append(punto[0])
+		lineas.append([(min(posibles), nivel),(max(posibles), nivel)])
+	return lineas
 
-# a typical operation we may want to apply is to take our mask and
-# apply a bitwise AND to our input image, keeping only the masked
-# regions
-mask = thresh.copy()
-output = cv2.bitwise_and(image, image, mask=mask)'''
-cv2.imshow("Output", output)
-cv2.waitKey(0)
+def obtener_secciones(lineas):
+	# LINEA -> [(altura inicial, anchura inicial), (altura inicial, anchura final)] 
+	for i in range(len(lineas) - 1):
+		if (lineas[i + 1][0][1] - lineas[i][0][1]) > 10:
+			alturas = [lineas[i][0][1],lineas[i+1][0][1]]
+			anchuras = [min([lineas[i][0][0], lineas[i+1][0][0]]),max([lineas[i][1][0], lineas[i+1][1][0]])]
+			imagen_cortada = image[alturas[0]:alturas[1], anchuras[0]:anchuras[1]]
+			secciones.append(imagen_cortada)
+
+obtener_puntos()
+niveles = sorted(niveles)
+lineas = obtener_lineas(puntos, niveles)
+obtener_secciones(lineas)
+print('SECCIONES: ')
+print(secciones)
+
+for sec in secciones:
+	cv2.imshow("Seccion", sec)
+	cv2.waitKey(0)
+
 cv2.destroyAllWindows()
