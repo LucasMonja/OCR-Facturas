@@ -39,7 +39,7 @@ def obtener_nombre(boxes):
         else: break
     return nombre.rstrip()
 '''
-def limpiar_boxes(boxes):
+'''def limpiar_boxes(boxes):
     boxes_nuevo = []
     for x, box in enumerate(boxes.splitlines()):
         if x != 0:
@@ -48,7 +48,7 @@ def limpiar_boxes(boxes):
                 boxes_nuevo.append(box)
     return boxes_nuevo    
 
-boxes = limpiar_boxes(boxes)
+boxes = limpiar_boxes(boxes)'''
 print(boxes)
 #factura['Nombre_Remitente'] = obtener_nombre(boxes)
 

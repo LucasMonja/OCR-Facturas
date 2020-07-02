@@ -3,7 +3,7 @@ import pdf2image
 import cv2
 import os
 
-pdf_path = './recursos/m.obra.pdf'
+pdf_path = './recursos/CPE.pdf'
 
 #ACA CREO QUE PODRIAMOS SOLO CONVERTIR 1 IMAGEN PORQUE LAS FACTURAS DE LA AFIP SON DE 1 HOJA
 #LAS DEMAS SON COPIAS DE LA PRIMERA
